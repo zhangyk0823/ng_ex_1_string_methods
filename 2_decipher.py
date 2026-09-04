@@ -5,17 +5,20 @@ encoded = """
    [6::GZ_7_VS::ok] | [99::IGNORE_ME::bad] | %%noise%%
 """
 
-###############################################################
-"""
-1. Part of the real message is inside the the '[' and ']' brackets.
-2. Each fragment inside the brackets has a number, jumbled text of the message, and 'ok'. Focus on only those fragments. The '::' are just separating these parts in the fragment 
-3. To find the actual message in every fragment,take every letter in the jumbled message, and shift it backward by the number part in that fragment
-For example, if the number is 3 and the jumbled message is ABC, then the actual message is XYZ.
-Similarly, if the number is 5 and the jumbled message is ABC, then the actual message is VWX.
-4. Ignore any fragment that has 'bad' instead of 'ok'.
-5. Once you have decoded all the fragments, combine them in the order of their numbers to get the final message. First comes the fragment with number 1, then 2, and so on.
-"""
-
 alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+results = []
+for chunk in encoded.split("[")[1:]:
+    inner = chunk.split("]")[0].split("::")
+    if len(inner) == 3 and inner[2] == "ok":
+        num = int(inner[0])
+        decoded = ""
+        for ch in inner[1]:
+            if ch in alphabet:
+                decoded += alphabet[(alphabet.find(ch) - num) % 26]
+            else:
+                decoded += ch
+        results.append((num, decoded))
 
+results.sort()
+print(" ".join(r[1] for r in results))
